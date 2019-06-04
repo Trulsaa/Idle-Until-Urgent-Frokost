@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+body {
+  margin: 2rem
+}
+    </style>
+  </head>
+
+  <body>
+    <h1>Idle Until Urgent Preview</h1>
+    <p>In light of the rising frequency of human/grizzly bear conflicts, the Montana Department of Fish and Game is advising hikers, hunters, and fishermen to take extra precautions and keep alert for bears while in the field.
+    We advise that outdoorsmen wear noisy little bells on their clothing so as not to startle bears that aren't expecting them. We also advise outdoorsmen to carry pepper spray with them in case of an encounter with a bear. It is also a good idea to watch out for fresh signs of bear activity.  Outdoorsmen should recognize the difference between black bear and grizzly bear poop.  Black bear poop is smaller and contains lots of berries and squirrel fur.  Grizzly bear poop is larger and has little bells in it and smells like pepper.</p>
+    <img src="iu.gif" alt="This is my animated image" height="402" width="402">
+    <br />
+    <button style="font-size: 2rem;" id="queueTasks">Run Tasks</button>
+    <br />
+    <br />
+    <button style="font-size: 2rem;" id="queueDefferedTasks">Run Deferred Tasks</button>
+    <br />
+    <br />
+    <button style="font-size: 2rem;" id="queueDefferedTasksIdle">Run Tasks on Idle</button>
+    <br />
+    <br />
+    <button style="font-size: 2rem;" id="makeIdleGetter">Make Idle Getter</button>
+    <br />
+    <br />
+    <button style="font-size: 2rem;" id="getNow">Get Idle Code Now</button>
+
+  </body>
+
+  <script>
+    let tasktime = 4000
+    let tasks = tasktime / 50
+
+    const delay = (ms, text) => {
+      const startTime = new Date().getTime()
+      const endTime = startTime + ms
+
+      while (new Date().getTime() < endTime) {
+        console.log(text)
+      }
+    }
+
+    const queueTasks = () => {
+      for (i = 0; i < tasks; i++) {
+        delay(50, "Task")
+      }
+    }
+
+    document
+      .getElementById("queueTasks")
+      .addEventListener("click", queueTasks)
+
+    const queueDefferedTasks = () => {
+      for (i = 0; i < tasks; i++) {
+        setTimeout(() => delay(50, "Deffered Task"), 0)
+      }
+    }
+
+    document
+      .getElementById("queueDefferedTasks")
+      .addEventListener("click", queueDefferedTasks)
+
+
+    const queueDefferedTasksIdle = () => {
+      for (i = 0; i < tasks; i++) {
+        requestIdleCallback(() => delay(50, "Idle Task"))
+      }
+    }
+
+    document
+      .getElementById("queueDefferedTasksIdle")
+      .addEventListener("click", queueDefferedTasksIdle)
+
+    const makeIdleGetter = (workFn) => {
+      const UNLOADED = "tomt";
+      let result = UNLOADED;
+
+      const handle = requestIdleCallback(() => {
+        result = workFn()
+      });
+      const clear = () => cancelIdleCallback(handle);
+
+      return () => {
+        if (result === UNLOADED) {
+          result = workFn();
+          clear();
+        }
+
+        return result;
+      };
+    };
+
+    const queueIdleTask = () => {
+      for (i = 0; i < tasks; i++) {
+        delay(50, "Idle Task")
+      }
+      return "Masse data"
+    }
+
+    let getNow
+
+    document
+      .getElementById("makeIdleGetter")
+      .addEventListener("click", () => getNow = makeIdleGetter(queueIdleTask))
+
+    document
+      .getElementById("getNow")
+      .addEventListener("click", () => console.log(getNow()))
+
+  </script>
+</html>
